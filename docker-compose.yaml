@@ -1,0 +1,54 @@
+version: '3'
+services:
+  label_studio:
+    image: heartexlabs/label-studio:1.4.0
+    container_name: label_studio
+    ports:
+      - 8508:8080
+    volumes:
+      - ./label_data:/label-studio/data
+    environment:
+      DJANGO_DB: default
+      POSTGRE_NAME: postgres
+      POSTGRE_USER: postgres
+      POSTGRE_PASSWORD: admin
+      POSTGRE_PORT: 5432
+      POSTGRE_HOST: db
+    depends_on:
+      - db
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    ports:
+      - 5433:5432
+
+    volumes:
+      - './postgres_data:/var/lib/postgresql/data'
+  mongo:
+    image: mongo
+    restart: always
+    ports: 
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongo_data:/data/db
+  mongo-express:
+    image: mongo-express:0.54.0
+    restart: always
+    ports:
+      - 8081:8081
+    environment: 
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_URL=mongo://admin:password@mongo:27017/
+    depends_on:
+      - "mongo"
+volumes:
+  label_data:
+  postgres_data:
+  mongo_data:
